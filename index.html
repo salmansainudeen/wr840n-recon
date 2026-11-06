@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TL-WR840N — Recon &amp; Login-Crypto Study</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; background: #0d1117; }
+  .markdown-body {
+    box-sizing: border-box;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+  @media (max-width: 767px) { .markdown-body { padding: 24px 16px 60px; } }
+</style>
+</head>
+<body>
+<article id="content" class="markdown-body">Loading…</article>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  fetch('README.md')
+    .then(function (r) { return r.text(); })
+    .then(function (md) {
+      document.getElementById('content').innerHTML = marked.parse(md);
+      document.querySelectorAll('pre code').forEach(function (el) {
+        try { hljs.highlightElement(el); } catch (e) {}
+      });
+    })
+    .catch(function (e) {
+      document.getElementById('content').textContent = 'Failed to load README.md: ' + e;
+    });
+</script>
+</body>
+</html>

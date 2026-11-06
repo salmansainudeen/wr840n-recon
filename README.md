@@ -51,8 +51,40 @@ requests** (no payloads, no auth attempts).
 4. Request body is **AES-128-CBC / PKCS7** encrypted → base64 (`data`).
 5. A signature string `key=..&iv=..&h=<md5>&s=<seq+len>` is **RSA-512 / PKCS#1 v1.5**
    encrypted in 53-byte blocks, hex output, each block zero-padded to 128 hex chars (`sign`).
-6. `data` + `sign` are what the firmware expects. (The exact `/cgi/login` submission
-   wiring lives in `lib.js` / `root.js` and was intentionally left unreconstructed.)
+6. `data` + `sign` are what the firmware expects.
+
+### The full login request (traced from `lib.js` + `login.html`)
+
+`login.html`'s `doLogin()` fetches `/cgi/getParm`, configures the encryptor
+(`setSeq` / `setRSAKey` / `setHash(user,pass)` / `genAESKey`), then queues a
+`/cgi/login` action carrying `{username, password}`. `lib.js`'s `exe()`
+serializes queued actions into TP-Link's request format and, when encryption is
+on, POSTs to **`/cgi_gdpr`** (not `/cgi/login` directly).
+
+**Inner body (AES plaintext)** — TP-Link's `[oid#stack#pStack]index,attrCount` format:
+
+```
+[/cgi/login#0,0,0,0,0,0#0,0,0,0,0,0]0,2
+username=admin
+password=admin
+```
+
+**Wire request** — the inner body is AES-encrypted into `data`, the RSA blob
+into `sign`:
+
+```
+POST /cgi_gdpr HTTP/1.1
+Host: 192.168.0.104
+Referer: http://192.168.0.104/
+Content-Type: text/plain
+
+sign=<256 hex chars>
+data=<base64 AES ciphertext>
+```
+
+`AESEncrypt(body, 1)` is used when the inner body contains `/cgi/login` (login
+flag), otherwise `AESEncrypt(body, 0)`. After the request, `recordEncryptor()`
+persists the AES key/seq/hash/RSA key to `localStorage`.
 
 ## Tools in this repo
 
